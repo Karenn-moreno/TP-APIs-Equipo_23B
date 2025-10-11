@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36408.4 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatalogoApi", "CatalogoApi\CatalogoApi.csproj", "{26FC46D2-7CB5-4323-BACE-51460229B128}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dominio", "dominio\dominio.csproj", "{6A619476-C6F0-4088-9225-E0D4911A0109}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "negocio", "negocio\negocio.csproj", "{7439A30B-1412-46B8-923C-3EEF831A3FB9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{26FC46D2-7CB5-4323-BACE-51460229B128}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26FC46D2-7CB5-4323-BACE-51460229B128}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26FC46D2-7CB5-4323-BACE-51460229B128}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26FC46D2-7CB5-4323-BACE-51460229B128}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A619476-C6F0-4088-9225-E0D4911A0109}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A619476-C6F0-4088-9225-E0D4911A0109}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A619476-C6F0-4088-9225-E0D4911A0109}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A619476-C6F0-4088-9225-E0D4911A0109}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7439A30B-1412-46B8-923C-3EEF831A3FB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7439A30B-1412-46B8-923C-3EEF831A3FB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7439A30B-1412-46B8-923C-3EEF831A3FB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7439A30B-1412-46B8-923C-3EEF831A3FB9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BB9B6A9F-61AC-49EB-9296-C1FBD13559A4}
+	EndGlobalSection
+EndGlobal
