@@ -18,6 +18,7 @@ namespace negocio
             try
             {
                 //  lee de la tabla Imagenes
+                datos.abrirConexion();
                 datos.setearConsulta("SELECT Id, IdArticulo, ImagenUrl FROM IMAGENES");
                 datos.ejecutarLectura();
 
@@ -56,7 +57,7 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                
+                datos.abrirConexion();
                 datos.setearConsulta("SELECT Id, IdArticulo, ImagenUrl FROM IMAGENES WHERE IdArticulo = @idArticulo");
                 datos.setearParametro("@idArticulo", idArticulo);
                 datos.ejecutarLectura();

@@ -17,8 +17,10 @@ namespace negocio
 
             try
             {
+                datos.abrirConexion();
                 datos.setearConsulta("SELECT Id, Descripcion FROM MARCAS");
                 datos.ejecutarLectura();
+               
 
                 while (datos.Lector.Read())
                 {
@@ -53,6 +55,10 @@ namespace negocio
                 datos.setearParametro("@descripcion", nuevaMarca.Descripcion);
                 datos.ejecutarLectura();
 
+                //
+                datos.abrirConexion();
+                datos.ejecutarLectura();
+
                 if (datos.Lector.Read())
                     count = (int)datos.Lector["Total"];
             }
@@ -70,7 +76,7 @@ namespace negocio
             {
                 datosInsert.setearConsulta("INSERT INTO MARCAS (Descripcion) VALUES (@descripcion)");
                 datosInsert.setearParametro("@descripcion", nuevaMarca.Descripcion);
-                int filasAfectadas = datosInsert.ejecutarAccionInt();
+                int filasAfectadas = datosInsert.ejecutarAccionAutonoma();
                 return filasAfectadas > 0;
             }
             finally
@@ -80,10 +86,12 @@ namespace negocio
         }
 
         public void Eliminar(int id)
-        {
+        { 
+            AccesoDatos datos = new AccesoDatos();
             try
             {
-                AccesoDatos datos = new AccesoDatos();
+                
+                datos.abrirConexion();
                 datos.setearConsulta("delete from MARCAS where id=@id");
                 datos.setearParametro("@id", id);
                 datos.ejecutarAccion();
@@ -91,6 +99,10 @@ namespace negocio
             catch (Exception ex)
             {
                 throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
             }
 
         }
@@ -107,6 +119,9 @@ namespace negocio
                     "SELECT COUNT(*) AS Total FROM MARCAS WHERE Descripcion=@descripcion AND Id != @id");
                 datosCheck.setearParametro("@descripcion", marca.Descripcion);
                 datosCheck.setearParametro("@id", marca.Id);
+                datosCheck.ejecutarLectura();
+                // 
+                datosCheck.abrirConexion();
                 datosCheck.ejecutarLectura();
 
                 if (datosCheck.Lector.Read())
@@ -129,7 +144,7 @@ namespace negocio
                 datosUpdate.setearParametro("@descripcion", marca.Descripcion);
                 datosUpdate.setearParametro("@id", marca.Id);
 
-                int filasAfectadas = datosUpdate.ejecutarAccionInt();
+                int filasAfectadas = datosUpdate.ejecutarAccionAutonoma();
                 return filasAfectadas > 0; // true si se modifico
             }
             finally

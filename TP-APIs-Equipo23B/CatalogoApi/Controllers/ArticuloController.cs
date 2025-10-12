@@ -38,7 +38,7 @@ namespace CatalogoApi.Controllers
             //se devuelve la lista de DTOs directamente
             return listaDto;
         }
-        
+
 
         // GET: api/Producto/5
         public string Get(int id)
@@ -46,10 +46,56 @@ namespace CatalogoApi.Controllers
             return "value";
         }
 
+
         // POST: api/Producto
-        public void Post([FromBody]string value)
+        [HttpPost]
+        public HttpResponseMessage Post([FromBody] ArticuloAltaDto articuloDto)
         {
+            // validar el modelo primero 
+            if (!ModelState.IsValid)
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+
+            // instanciar las capas de negocio 
+            var articuloNegocio = new ArticuloNegocio();
+            var marcaNegocio = new MarcaNegocio();
+            var categoriaNegocio = new CategoriaNegocio();
+
+            // validar que la Marca y la Categoría enviadas existan en la BD
+            Marca marcaExistente = marcaNegocio.listar().Find(m => m.Id == articuloDto.IdMarca);
+            Categoria categoriaExistente = categoriaNegocio.listar().Find(c => c.Id == articuloDto.IdCategoria);
+
+            // si alguna no existe, devolver un error 
+            if (marcaExistente == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "La marca especificada no existe");
+            }
+
+            if (categoriaExistente == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "La categoria especificada no existe");
+            }
+
+            //mapear la nueva entidad Articulo
+            var nuevoArticulo = new Articulo
+            {
+                Codigo = articuloDto.Codigo,
+                Nombre = articuloDto.Nombre,
+                Descripcion = articuloDto.Descripcion,
+                Precio = articuloDto.Precio,
+                Marca = marcaExistente,         
+                Categoria = categoriaExistente, 
+                Imagenes = articuloDto.Imagenes?
+                    .Select(imgDto => new Imagen { UrlImagen = imgDto.UrlImagen })
+                    .ToList() ?? new List<Imagen>()
+            };
+
+            // llamar al método para agregar el nuevo artículo
+            articuloNegocio.Agregar(nuevoArticulo);
+
+            //devolver con mensaje de éxito
+            return Request.CreateResponse(HttpStatusCode.OK, "Articulo agregado correctamente!");
         }
+    
 
         // PUT: api/Producto/5
         public void Put(int id, [FromBody]string value)

@@ -16,6 +16,7 @@ namespace negocio
 
             try
             {
+                datos.abrirConexion();
                 datos.setearConsulta("SELECT Id, Descripcion FROM CATEGORIAS");
                 datos.ejecutarLectura();
 
@@ -49,6 +50,7 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
+                datos .abrirConexion();
                 datos.setearConsulta("SELECT COUNT(*) AS Total FROM CATEGORIAS WHERE Descripcion=@descripcion");
                 datos.setearParametro("@descripcion", nuevaCategoria.Descripcion);
                 datos.ejecutarLectura();
@@ -67,10 +69,10 @@ namespace negocio
             
             AccesoDatos datosInsert = new AccesoDatos();
             try
-            {
+            {   
                 datosInsert.setearConsulta("INSERT INTO CATEGORIAS (Descripcion) VALUES (@descripcion)");
                 datosInsert.setearParametro("@descripcion", nuevaCategoria.Descripcion);
-                int filasAfectadas = datosInsert.ejecutarAccionInt();
+                int filasAfectadas = datosInsert.ejecutarAccionAutonoma();
                 return filasAfectadas > 0;
             }
             finally
@@ -112,7 +114,7 @@ namespace negocio
                 datosUpdate.setearParametro("@descripcion", categoria.Descripcion);
                 datosUpdate.setearParametro("@id", categoria.Id);
 
-                int filasAfectadas = datosUpdate.ejecutarAccionInt();
+                int filasAfectadas = datosUpdate.ejecutarAccionAutonoma();
                 return filasAfectadas > 0;
             }
             finally

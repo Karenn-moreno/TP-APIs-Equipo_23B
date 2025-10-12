@@ -158,6 +158,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ArticuloController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Dtos\ArticuloAltaDto.cs" />
     <Compile Include="Dtos\ArticuloDto.cs" />
     <Compile Include="Dtos\ImagenDto.cs" />
     <Compile Include="Global.asax.cs">

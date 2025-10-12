@@ -18,6 +18,7 @@ namespace negocio
 
             try
             {
+                datos.abrirConexion(); 
                 // obtenemos todos los articulos
                 datos.setearConsulta(@"
                     SELECT a.Id, a.Codigo, a.Nombre, a.Descripcion,
@@ -68,10 +69,12 @@ namespace negocio
         }
         public Articulo Listar(int id)// sobrecargamos el método Listar
         {
+            
             AccesoDatos datos = new AccesoDatos();
             Articulo articulo = null;
             try
             {
+                datos.abrirConexion();
                 datos.setearConsulta(@"
             SELECT a.Id, a.Codigo, a.Nombre, a.Descripcion,
                    m.Descripcion AS Marca,
@@ -116,32 +119,52 @@ namespace negocio
             }
         }
         //nuevo articulo
-        public void Agregar(Articulo nuevo)
+        public void Agregar(Articulo nuevo)
         {
             AccesoDatos datos = new AccesoDatos();
-
             try
             {
-                datos.setearConsulta("INSERT INTO ARTICULOS (Codigo, Nombre, Descripcion, Precio, IdMarca, IdCategoria) " +
-                 "VALUES ('" + nuevo.Codigo + "', '" + nuevo.Nombre + "', '" + nuevo.Descripcion + "', " + nuevo.Precio +
-                ", @IdMarca, @IdCategoria)" + "INSERT INTO IMAGENES (IdArticulo, ImagenUrl) VALUES (SCOPE_IDENTITY(), @ImagenUrl);");
+                datos.abrirConexion();
 
+                string consultaArticulo = "INSERT INTO ARTICULOS (Codigo, Nombre, Descripcion, IdMarca, IdCategoria, Precio) " +
+                                          "VALUES (@Codigo, @Nombre, @Descripcion, @IdMarca, @IdCategoria, @Precio);" +
+                                          "SELECT SCOPE_IDENTITY();";
+
+                datos.setearConsulta(consultaArticulo);
+                datos.setearParametro("@Codigo", nuevo.Codigo);
+                datos.setearParametro("@Nombre", nuevo.Nombre);
+                datos.setearParametro("@Descripcion", nuevo.Descripcion);
                 datos.setearParametro("@IdMarca", nuevo.Marca.Id);
                 datos.setearParametro("@IdCategoria", nuevo.Categoria.Id);
+                datos.setearParametro("@Precio", nuevo.Precio);
 
-                //datos.setearParametro("@ImagenUrl", nuevo.Imagenes);
-                //datos.ejecutarAccion();
 
-                // Obtener la URL de la primera imagen
-                string urlImagen = (nuevo.Imagenes != null && nuevo.Imagenes.Count > 0)
-                                   ? nuevo.Imagenes[0].UrlImagen
-                                   : "https://redthread.uoregon.edu/files/original/affd16fd5264cab9197da4cd1a996f820e601ee4.png";
 
-                datos.setearParametro("@ImagenUrl", urlImagen);
-                datos.ejecutarAccion();
+
+                int nuevoId = Convert.ToInt32(datos.ejecutarEscalar());
+
+                if (nuevoId > 0 && nuevo.Imagenes != null && nuevo.Imagenes.Count > 0)
+                {
+                    foreach (var imagen in nuevo.Imagenes)
+                    {
+                       
+                        datos.limpiarParametros();
+
+                        
+                        datos.setearConsulta("INSERT INTO IMAGENES (IdArticulo, ImagenUrl) VALUES (@IdArticulo, @ImagenUrl)");
+
+                        
+                        datos.setearParametro("@IdArticulo", nuevoId);
+                        datos.setearParametro("@ImagenUrl", imagen.UrlImagen);
+
+                        
+                        datos.ejecutarAccion();
+                    }
+                }
             }
             catch (Exception ex)
             {
+                
                 throw ex;
             }
             finally
@@ -155,8 +178,10 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                
-                datos.setearConsulta("UPDATE ARTICULOS set Codigo = @codigo, Nombre = @nombre, Descripcion = @descripcion, IdMarca = @idMarca, IdCategoria = @idCategoria, Precio = @precio where Id = @id");
+                datos.abrirConexion();
+
+                // Actualiza el artículo
+                datos.setearConsulta("UPDATE ARTICULOS SET Codigo=@codigo, Nombre=@nombre, Descripcion=@descripcion, IdMarca=@idMarca, IdCategoria=@idCategoria, Precio=@precio WHERE Id=@id");
                 datos.setearParametro("@codigo", art.Codigo);
                 datos.setearParametro("@nombre", art.Nombre);
                 datos.setearParametro("@descripcion", art.Descripcion);
@@ -166,22 +191,23 @@ namespace negocio
                 datos.setearParametro("@id", art.Id);
                 datos.ejecutarAccion();
 
-                // Borra la imagen anterior del artículo
-                datos.cerrarConexion();
-                datos = new AccesoDatos();
-                datos.setearConsulta("DELETE from IMAGENES where IdArticulo = @idArticulo");
+                //Borra las imágenes anteriores
+                datos.limpiarParametros();
+                datos.setearConsulta("DELETE FROM IMAGENES WHERE IdArticulo = @idArticulo");
                 datos.setearParametro("@idArticulo", art.Id);
                 datos.ejecutarAccion();
 
-                // Agrega la nueva imagen si la hay.
-                if (art.Imagenes.Count > 0)
+                // Agrega las nuevas imágenes 
+                if (art.Imagenes != null && art.Imagenes.Any())
                 {
-                    datos.cerrarConexion();
-                    datos = new AccesoDatos();
-                    datos.setearConsulta("INSERT into IMAGENES (IdArticulo, ImagenUrl) VALUES (@IdArticulo, @ImagenUrl)");
-                    datos.setearParametro("@IdArticulo", art.Id);
-                    datos.setearParametro("@ImagenUrl", art.Imagenes[0].UrlImagen);
-                    datos.ejecutarAccion();
+                    foreach (var imagen in art.Imagenes)
+                    {
+                        datos.limpiarParametros();
+                        datos.setearConsulta("INSERT INTO IMAGENES (IdArticulo, ImagenUrl) VALUES (@IdArticulo, @ImagenUrl)");
+                        datos.setearParametro("@IdArticulo", art.Id);
+                        datos.setearParametro("@ImagenUrl", imagen.UrlImagen);
+                        datos.ejecutarAccion();
+                    }
                 }
             }
             catch (Exception ex)
@@ -196,26 +222,26 @@ namespace negocio
 
         public void eliminar(int id)
         {
+            AccesoDatos datos = new AccesoDatos();
             try
             {
-                AccesoDatos datos = new AccesoDatos();
-                datos.setearConsulta("delete from ARTICULOS where id=@id");
+                datos.setearConsulta("DELETE FROM IMAGENES WHERE IdArticulo = @id; DELETE FROM ARTICULOS WHERE id=@id;");
                 datos.setearParametro("@id", id);
-                datos.ejecutarAccion();
+                datos.ejecutarAccionAutonoma();
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-
         }
-        
+
 
         public bool ExisteCodigo(string codigo)
         {
             AccesoDatos datos = new AccesoDatos();
             try
             {
+                datos.abrirConexion();
                 datos.setearConsulta("SELECT 1 FROM ARTICULOS WHERE Codigo = @cod");
                 datos.setearParametro("@cod", codigo);
                 datos.ejecutarLectura();
@@ -231,64 +257,33 @@ namespace negocio
         {
             List<Articulo> lista = new List<Articulo>();
             AccesoDatos datos = new AccesoDatos();
-
             try
             {
-                string consulta = @"SELECT a.Id, a.Codigo, a.Nombre, a.Descripcion,
-                                   m.Descripcion AS Marca,
-                                   c.Descripcion AS Categoria,
-                                   a.Precio
-                            FROM ARTICULOS a
-                            INNER JOIN MARCAS m ON a.IdMarca = m.Id
-                            INNER JOIN CATEGORIAS c ON a.IdCategoria = c.Id
-                            WHERE ";
+                string consulta = @"SELECT a.Id, a.Codigo, a.Nombre, a.Descripcion, m.Descripcion AS Marca, c.Descripcion AS Categoria, a.Precio, a.IdMarca, a.IdCategoria FROM ARTICULOS a INNER JOIN MARCAS m ON a.IdMarca = m.Id INNER JOIN CATEGORIAS c ON a.IdCategoria = c.Id WHERE ";
 
                 if (campo == "Precio")
                 {
                     switch (criterio)
                     {
-                        case "Mayor a":
-                            consulta += "a.Precio > " + filtro;
-                            break;
-                        case "Menor a":
-                            consulta += "a.Precio < " + filtro;
-                            break;
-                        default:
-                            consulta += "a.Precio = " + filtro;
-                            break;
+                        case "Mayor a": consulta += "a.Precio > @filtro"; break;
+                        case "Menor a": consulta += "a.Precio < @filtro"; break;
+                        default: consulta += "a.Precio = @filtro"; break;
                     }
+                    datos.setearParametro("@filtro", decimal.Parse(filtro));
                 }
-                else if (campo == "Nombre")
+                else
                 {
+                    string columna = (campo == "Nombre") ? "a.Nombre" : "a.Descripcion";
                     switch (criterio)
                     {
-                        case "Empieza con":
-                            consulta += "a.Nombre like '" + filtro + "%'";
-                            break;
-                        case "Termina con":
-                            consulta += "a.Nombre like '%" + filtro + "'";
-                            break;
-                        default:
-                            consulta += "a.Nombre like '%" + filtro + "%'";
-                            break;
+                        case "Empieza con": consulta += columna + " LIKE @filtro + '%'"; break;
+                        case "Termina con": consulta += columna + " LIKE '%' + @filtro"; break;
+                        default: consulta += columna + " LIKE '%' + @filtro + '%'"; break;
                     }
-                }
-                else if (campo == "Descripcion")
-                {
-                    switch (criterio)
-                    {
-                        case "Empieza con":
-                            consulta += "a.Descripcion like '" + filtro + "%'";
-                            break;
-                        case "Termina con":
-                            consulta += "a.Descripcion like '%" + filtro + "'";
-                            break;
-                        default:
-                            consulta += "a.Descripcion like '%" + filtro + "%'";
-                            break;
-                    }
+                    datos.setearParametro("@filtro", filtro);
                 }
 
+                datos.abrirConexion();
                 datos.setearConsulta(consulta);
                 datos.ejecutarLectura();
 
@@ -299,18 +294,11 @@ namespace negocio
                     articulo.Codigo = (string)datos.Lector["Codigo"];
                     articulo.Nombre = (string)datos.Lector["Nombre"];
                     articulo.Descripcion = (string)datos.Lector["Descripcion"];
-
-                    articulo.Marca = new Marca();
-                    articulo.Marca.Descripcion = (string)datos.Lector["Marca"];
-
-                    articulo.Categoria = new Categoria();
-                    articulo.Categoria.Descripcion = (string)datos.Lector["Categoria"];
-
                     articulo.Precio = (decimal)datos.Lector["Precio"];
-
+                    articulo.Marca = new Marca { Id = (int)datos.Lector["IdMarca"], Descripcion = (string)datos.Lector["Marca"] };
+                    articulo.Categoria = new Categoria { Id = (int)datos.Lector["IdCategoria"], Descripcion = (string)datos.Lector["Categoria"] };
                     lista.Add(articulo);
                 }
-
                 return lista;
             }
             catch (Exception ex)
