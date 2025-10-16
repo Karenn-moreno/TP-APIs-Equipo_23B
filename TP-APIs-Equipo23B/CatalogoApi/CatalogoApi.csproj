@@ -160,6 +160,7 @@
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Dtos\ArticuloAltaDto.cs" />
     <Compile Include="Dtos\ArticuloDto.cs" />
+    <Compile Include="Dtos\ImagenAgregarDto.cs" />
     <Compile Include="Dtos\ImagenDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

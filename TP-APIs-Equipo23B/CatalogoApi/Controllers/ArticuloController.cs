@@ -95,7 +95,33 @@ namespace CatalogoApi.Controllers
             //devolver con mensaje de éxito
             return Request.CreateResponse(HttpStatusCode.OK, "Articulo agregado correctamente!");
         }
-    
+
+        //AGR
+
+        // POST: api/Articulo/Imagenes
+        [Route("api/Articulo/Imagenes")]
+        [HttpPost]
+        public IHttpActionResult PostImagenes([FromBody] ImagenAgregarDto imagenDto)
+        {
+            
+            if (!ModelState.IsValid || imagenDto == null || !imagenDto.Imagenes.Any())
+            {
+                return BadRequest("Datos de imagen inválidos: falta el ID del producto o la lista de URLs.");
+            }
+
+            try
+            {
+                var articuloNegocio = new ArticuloNegocio();
+                articuloNegocio.AgregarImagenes(imagenDto.IdProducto, imagenDto.Imagenes);
+
+                return Content(HttpStatusCode.Created, "Imágenes agregadas correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
 
         // PUT: api/Producto/5
         public void Put(int id, [FromBody] ArticuloAltaDto articuloDto)

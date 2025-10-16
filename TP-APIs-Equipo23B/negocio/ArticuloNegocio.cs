@@ -174,6 +174,35 @@ namespace negocio
             }
         }
 
+
+        //AGR
+        public void AgregarImagenes(int idArticulo, List<string> urlsImagenes)
+        {
+            if (urlsImagenes == null || !urlsImagenes.Any())
+                return;
+
+            try
+            {
+                foreach (var url in urlsImagenes)
+                {
+                    
+                    var nuevaImagen = new dominio.Imagen
+                    {
+                        UrlImagen = url,
+                        IdArticulo = idArticulo 
+                    };
+                    imagenNegocio.Insertar(nuevaImagen);
+                }
+            }
+            catch (Exception ex)
+            {
+                // puede indicar que el IdArticulo no existe 
+                throw new Exception("Error al agregar imágenes al artículo. Verifique el ID del artículo.", ex);
+            }
+        }
+        
+
+
         public void modificar(Articulo art)
         {
             AccesoDatos datos = new AccesoDatos();

@@ -97,6 +97,32 @@ namespace negocio
                 throw new Exception("Error al eliminar las imágenes del artículo en la base de datos.", ex);
             }
         }
+
+
+        //AGR
+        public void Insertar(Imagen nuevaImagen)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearConsulta("INSERT INTO IMAGENES (IdArticulo, ImagenUrl) VALUES (@IdArticulo, @ImagenUrl)");
+
+                
+                datos.setearParametro("@IdArticulo", nuevaImagen.IdArticulo);
+                datos.setearParametro("@ImagenUrl", nuevaImagen.UrlImagen);
+
+                
+                // abre y cierra la conexión por sí mismo
+                datos.ejecutarAccionAutonoma();
+            }
+            catch (Exception ex)
+            {
+                // error de clave foránea (IdArticulo no existe)
+                throw new Exception("Error al insertar la imagen en la base de datos.", ex);
+            }  
+        }
+
+       
     }
 }
 
