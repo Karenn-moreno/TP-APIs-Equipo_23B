@@ -11,6 +11,7 @@ namespace negocio
 {
     public class ArticuloNegocio
     {
+        private readonly ImagenNegocio imagenNegocio = new ImagenNegocio();
         public List<Articulo> Listar()
         {
             List<Articulo> lista = new List<Articulo>();
@@ -311,7 +312,41 @@ namespace negocio
             }
         }
 
+        public bool EliminarFisico(int id)
+        {
+            // 
+            if (id <= 0)
+            {
+                throw new ArgumentException("El ID del artículo debe ser un número positivo.");
+            }
 
+            AccesoDatos datos = new AccesoDatos();
+            int filasArticuloAfectadas = 0;
+
+            try
+            {
+                // DELEGAR la ELIMINACIÓN de IMÁGENES (Clave Foránea)
+               
+                imagenNegocio.EliminarPorArticulo(id);
+
+                
+                // ELIMINAR ARTÍCULO
+               
+                datos.setearConsulta("DELETE FROM ARTICULOS WHERE Id = @idArticulo");
+                datos.setearParametro("@idArticulo", id);
+
+                // Ejecuta el DELETE. Retorna 1 si existe, 0 si no.
+                filasArticuloAfectadas = datos.ejecutarAccionAutonoma();
+
+                // Retorna TRUE si se eliminó una o más filas.
+                return filasArticuloAfectadas > 0;
+            }
+            catch (Exception ex)
+            {
+                // Relanzamos la excepción para proporcionar contexto al error de DB.
+                throw new Exception("Error al realizar la eliminación física del artículo en la base de datos.", ex);
+            }
+        }
 
     }
 }

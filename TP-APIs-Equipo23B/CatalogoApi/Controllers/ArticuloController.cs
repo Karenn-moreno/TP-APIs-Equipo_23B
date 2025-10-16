@@ -115,9 +115,15 @@ namespace CatalogoApi.Controllers
 
         }
 
+
+
         // DELETE: api/Producto/5
         public void Delete(int id)
         {
+
+            ArticuloNegocio negocio = new ArticuloNegocio();
+            negocio.EliminarFisico(id);
+
         }
     }
 }

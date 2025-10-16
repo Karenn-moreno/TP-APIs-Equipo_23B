@@ -80,6 +80,23 @@ namespace negocio
                 datos.cerrarConexion();
             }
         }
+
+        public void EliminarPorArticulo(int idArticulo)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                // Sentencia SQL para borrar todas las imágenes de ese artículo
+                datos.setearConsulta("DELETE FROM IMAGENES WHERE IdArticulo = @id");
+                datos.setearParametro("@id", idArticulo);
+                datos.ejecutarAccionAutonoma();
+            }
+            catch (Exception ex)
+            {
+                // Relanzamos la excepción con un mensaje específico para la capa
+                throw new Exception("Error al eliminar las imágenes del artículo en la base de datos.", ex);
+            }
+        }
     }
 }
 
