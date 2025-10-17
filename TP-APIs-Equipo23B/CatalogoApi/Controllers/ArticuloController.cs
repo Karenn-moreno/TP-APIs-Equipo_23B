@@ -41,9 +41,56 @@ namespace CatalogoApi.Controllers
 
 
         // GET: api/Producto/5
-        public string Get(int id)
+        public IHttpActionResult Get(int id)
         {
-            return "value";
+            // Validación de Entrada (ID)
+            if (id <= 0)
+            {
+                // Retorna 400 Bad Request
+                return BadRequest("El ID de artículo debe ser un número entero positivo para la búsqueda.");
+            }
+
+            try
+            {
+                var negocio = new ArticuloNegocio();
+
+               
+                List<Articulo> listaDeDominio = negocio.Listar();
+                Articulo articuloDominio = listaDeDominio.FirstOrDefault(a => a.Id == id);
+
+                // Manejo de Recurso No Encontrado
+                if (articuloDominio == null)
+                {
+                    // Retorna 404 Not Found
+                    return NotFound();
+                }
+
+                // Mapeo del objeto de Dominio a DTO
+                var articuloDto = new ArticuloDto
+                {
+                    Id = articuloDominio.Id,
+                    Codigo = articuloDominio.Codigo,
+                    Nombre = articuloDominio.Nombre,
+                    Descripcion = articuloDominio.Descripcion,
+                    Precio = articuloDominio.Precio,
+                    Marca = articuloDominio.Marca?.Descripcion,
+                    Categoria = articuloDominio.Categoria?.Descripcion,
+
+                    Imagenes = articuloDominio.Imagenes?.Select(img => new ImagenDto
+                    {
+                        Id = img.Id,
+                        UrlImagen = img.UrlImagen
+                    }).ToList() ?? new List<ImagenDto>()
+                };
+
+                // Respuesta Exitosa Retorna 200 OK con el ArticuloDto
+                return Ok(articuloDto);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de Errores retorna 500 Internal Server Error
+                return InternalServerError(ex);
+            }
         }
 
 
